@@ -11,4 +11,7 @@ interface ScheduleDao {
 
     @Query("SELECT * FROM schedule_table ORDER BY day ASC")
     fun getAll(): Flow<List<Schedule>>
+
+    @Delete
+    suspend fun delete(schedule: Schedule)
 }

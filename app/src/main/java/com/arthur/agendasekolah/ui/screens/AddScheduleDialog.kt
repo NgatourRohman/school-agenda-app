@@ -2,7 +2,6 @@ package com.arthur.agendasekolah.ui.screens
 
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
 
 @Composable
@@ -22,20 +21,17 @@ fun AddScheduleDialog(
                 OutlinedTextField(
                     value = subject,
                     onValueChange = { subject = it },
-                    label = { Text("Mata Pelajaran") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Mata Pelajaran") }
                 )
                 OutlinedTextField(
                     value = time,
                     onValueChange = { time = it },
-                    label = { Text("Jam") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Jam") }
                 )
                 OutlinedTextField(
                     value = day,
                     onValueChange = { day = it },
-                    label = { Text("Hari") },
-                    modifier = Modifier.fillMaxWidth()
+                    label = { Text("Hari (Senin, Selasa...)") }
                 )
             }
         },

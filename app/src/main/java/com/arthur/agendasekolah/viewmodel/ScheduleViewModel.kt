@@ -23,4 +23,10 @@ class ScheduleViewModel(application: Application) : AndroidViewModel(application
             repository.insert(schedule)
         }
     }
+
+    fun deleteSchedule(schedule: Schedule) {
+        viewModelScope.launch {
+            repository.delete(schedule)
+        }
+    }
 }
