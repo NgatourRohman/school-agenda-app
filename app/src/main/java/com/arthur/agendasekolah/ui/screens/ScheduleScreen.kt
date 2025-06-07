@@ -1,22 +1,29 @@
 package com.arthur.agendasekolah.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-
-data class Jadwal(
-    val lesson: String,
-    val hour: String,
-    val day: String
-)
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.arthur.agendasekolah.model.Schedule
+import com.arthur.agendasekolah.viewmodel.ScheduleViewModel
+import com.arthur.agendasekolah.viewmodel.ScheduleViewModelFactory
+import androidx.compose.foundation.lazy.items
 
 @Composable
 fun ScheduleScreen() {
+    val context = LocalContext.current
+    val viewModel: ScheduleViewModel = viewModel(
+        factory = ScheduleViewModelFactory(context.applicationContext as Application)
+    )
+
+    val scheduleList by viewModel.scheduleList.observeAsState(emptyList())
     var showDialog by remember { mutableStateOf(false) }
-    val jadwalList = remember { mutableStateListOf<Jadwal>() }
 
     Scaffold(
         floatingActionButton = {
@@ -24,87 +31,43 @@ fun ScheduleScreen() {
                 Text("+")
             }
         }
-    ) { padding ->
-        Column(modifier = Modifier
-            .padding(padding)
-            .fillMaxSize()
-            .padding(16.dp)) {
-
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
             Text("Jadwal Pelajaran", style = MaterialTheme.typography.h5)
 
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn {
-                items(jadwalList) { item ->
-                    Card(modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)) {
+                items(scheduleList, key = { it.id }) { item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
+                    ) {
                         Column(modifier = Modifier.padding(12.dp)) {
-                            Text("Pelajaran: ${item.lesson}")
-                            Text("Jam: ${item.hour}")
+                            Text("Pelajaran: ${item.subject}")
+                            Text("Jam: ${item.time}")
                             Text("Hari: ${item.day}")
                         }
                     }
                 }
-            }
-        }
 
-        if (showDialog) {
-            AddScheduleDialog(
-                onDismiss = { showDialog = false },
-                onSave = { lesson, hour, day ->
-                    jadwalList.add(Jadwal(lesson, hour, day))
-                    showDialog = false
-                }
-            )
+            }
+
+            if (showDialog) {
+                AddScheduleDialog(
+                    onDismiss = { showDialog = false },
+                    onSave = { subject, time, day ->
+                        viewModel.addSchedule(Schedule(subject = subject, time = time, day = day))
+                        showDialog = false
+                    }
+                )
+            }
         }
     }
-}
-
-@Composable
-fun AddScheduleDialog(
-    onDismiss: () -> Unit,
-    onSave: (lesson: String, hour: String, day: String) -> Unit
-) {
-    var lesson by remember { mutableStateOf("") }
-    var hour by remember { mutableStateOf("") }
-    var day by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Tambah Jadwal") },
-        text = {
-            Column {
-                OutlinedTextField(
-                    value = lesson,
-                    onValueChange = { lesson = it },
-                    label = { Text("Mata Pelajaran") }
-                )
-                OutlinedTextField(
-                    value = hour,
-                    onValueChange = { hour = it },
-                    label = { Text("Jam") }
-                )
-                OutlinedTextField(
-                    value = day,
-                    onValueChange = { day = it },
-                    label = { Text("Hari (Senin, Selasa...)") }
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = {
-                if (lesson.isNotBlank() && hour.isNotBlank() && day.isNotBlank()) {
-                    onSave(lesson, hour, day)
-                }
-            }) {
-                Text("Simpan")
-            }
-        },
-        dismissButton = {
-            OutlinedButton(onClick = onDismiss) {
-                Text("Batal")
-            }
-        }
-    )
 }
