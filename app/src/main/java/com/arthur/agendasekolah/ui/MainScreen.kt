@@ -13,8 +13,6 @@ import com.arthur.agendasekolah.ui.screens.*
 fun MainScreen() {
     var selected by remember { mutableStateOf(0) }
 
-    val screens = listOf("Jadwal", "Tugas", "Ujian")
-
     Scaffold(
         bottomBar = {
             BottomNavigation {
@@ -38,11 +36,14 @@ fun MainScreen() {
                 )
             }
         }
-    ) {
-        when (selected) {
-            0 -> JadwalScreen()
-            1 -> TugasScreen()
-            2 -> UjianScreen()
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            when (selected) {
+                0 -> ScheduleScreen()
+                1 -> TaskScreen()
+                2 -> ExamScreen()
+            }
         }
     }
 }
+

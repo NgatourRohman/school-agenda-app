@@ -11,7 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun JadwalScreen() {
+fun ScheduleScreen() {
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text("Halaman Jadwal", style = MaterialTheme.typography.headlineSmall)
