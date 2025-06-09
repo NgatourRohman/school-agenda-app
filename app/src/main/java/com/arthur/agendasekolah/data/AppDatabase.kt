@@ -4,13 +4,15 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.arthur.agendasekolah.model.Exam
 import com.arthur.agendasekolah.model.Schedule
 import com.arthur.agendasekolah.model.Task
 
-@Database(entities = [Schedule::class, Task::class], version = 2, exportSchema = false)
+@Database(entities = [Schedule::class, Task::class, Exam::class], version = 3, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun scheduleDao(): ScheduleDao
     abstract fun taskDao(): TaskDao
+    abstract fun ExamDao(): ExamDao
 
     companion object {
         @Volatile
