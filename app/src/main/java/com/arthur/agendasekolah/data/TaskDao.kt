@@ -14,4 +14,7 @@ interface TaskDao {
 
     @Query("SELECT * FROM task_table ORDER BY deadline ASC")
     fun getAll(): Flow<List<Task>>
+
+    @Update
+    suspend fun update(task: Task)
 }

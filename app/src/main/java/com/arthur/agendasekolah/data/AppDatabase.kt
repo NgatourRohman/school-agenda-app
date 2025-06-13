@@ -8,7 +8,7 @@ import com.arthur.agendasekolah.model.Exam
 import com.arthur.agendasekolah.model.Schedule
 import com.arthur.agendasekolah.model.Task
 
-@Database(entities = [Schedule::class, Task::class, Exam::class], version = 3, exportSchema = false)
+@Database(entities = [Schedule::class, Task::class, Exam::class], version = 4, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun scheduleDao(): ScheduleDao
     abstract fun taskDao(): TaskDao
@@ -25,7 +25,7 @@ abstract class AppDatabase : RoomDatabase() {
                     AppDatabase::class.java,
                     "agenda_database"
                 )
-                    .fallbackToDestructiveMigration() // ⬅ Tambahkan ini
+                    .fallbackToDestructiveMigration()
                     .build()
                     .also { INSTANCE = it }
             }

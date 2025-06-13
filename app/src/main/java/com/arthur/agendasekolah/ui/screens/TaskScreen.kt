@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -63,8 +64,16 @@ fun TaskScreen() {
                                 Text("Deadline: ${formatDate(task.deadline)}")
                             }
 
-                            IconButton(onClick = { viewModel.deleteTask(task) }) {
-                                Icon(Icons.Default.Delete, contentDescription = "Hapus")
+                            Row {
+                                if (!task.isCompleted) {
+                                    IconButton(onClick = { viewModel.markTaskAsCompleted(task) }) {
+                                        Icon(Icons.Default.CheckCircle, contentDescription = "Tandai Selesai")
+                                    }
+                                }
+
+                                IconButton(onClick = { viewModel.deleteTask(task) }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Hapus")
+                                }
                             }
                         }
                     }
