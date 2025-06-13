@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.FilterList
 import com.arthur.agendasekolah.model.Exam
 import com.arthur.agendasekolah.viewmodel.ExamViewModel
 import com.arthur.agendasekolah.viewmodel.ExamViewModelFactory
@@ -24,15 +25,35 @@ fun ExamScreen() {
         factory = ExamViewModelFactory(context.applicationContext as Application)
     )
 
-    // Observing the exam list
     val examList by viewModel.examList.observeAsState(emptyList())
     var showDialog by remember { mutableStateOf(false) }
+    var showUpcomingOnly by remember { mutableStateOf(true) }
+
+    val currentTime = System.currentTimeMillis()
+    val filteredExamList = if (showUpcomingOnly) {
+        examList.filter { it.dateMillis > currentTime }
+    } else {
+        examList
+    }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+")
             }
+        },
+        topBar = {
+            TopAppBar(
+                title = { Text("Ujian") },
+                actions = {
+                    IconButton(onClick = { showUpcomingOnly = !showUpcomingOnly }) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = "Filter"
+                        )
+                    }
+                }
+            )
         }
     ) { padding ->
         Column(
@@ -41,11 +62,8 @@ fun ExamScreen() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text("Daftar Ujian", style = MaterialTheme.typography.h5)
-            Spacer(modifier = Modifier.height(8.dp))
-
             LazyColumn {
-                items(examList, key = { it.id }) { exam ->
+                items(filteredExamList, key = { it.id }) { exam ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

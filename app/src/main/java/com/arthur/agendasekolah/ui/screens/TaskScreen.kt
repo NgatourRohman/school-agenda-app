@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -28,12 +29,32 @@ fun TaskScreen() {
 
     val taskList by viewModel.taskList.observeAsState(emptyList())
     var showDialog by remember { mutableStateOf(false) }
+    var showCompletedOnly by remember { mutableStateOf(false) }
+
+    val filteredTaskList = if (showCompletedOnly) {
+        taskList.filter { it.isCompleted }
+    } else {
+        taskList
+    }
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+")
             }
+        },
+        topBar = {
+            TopAppBar(
+                title = { Text("Tugas") },
+                actions = {
+                    IconButton(onClick = { showCompletedOnly = !showCompletedOnly }) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = "Filter"
+                        )
+                    }
+                }
+            )
         }
     ) { padding ->
         Column(
@@ -42,11 +63,8 @@ fun TaskScreen() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text("Daftar Tugas", style = MaterialTheme.typography.h5)
-            Spacer(modifier = Modifier.height(8.dp))
-
             LazyColumn {
-                items(taskList, key = { it.id }) { task ->
+                items(filteredTaskList, key = { it.id }) { task ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
