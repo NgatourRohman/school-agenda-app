@@ -1,10 +1,15 @@
 package com.arthur.agendasekolah.ui.screens
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.os.Build
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.layout.*
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
+import java.util.*
 
 @Composable
 fun AddTaskDialog(
@@ -13,7 +18,29 @@ fun AddTaskDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var description by remember { mutableStateOf("") }
-    var deadlineText by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf("") }
+    var selectedTime by remember { mutableStateOf("") }
+    var deadlineMillis by remember { mutableStateOf<Long?>(null) }
+    val context = LocalContext.current
+
+    val calendar = Calendar.getInstance()
+
+    // Date Picker
+    val dateSetListener =
+        DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            val selectedCalendar = Calendar.getInstance()
+            selectedCalendar.set(year, monthOfYear, dayOfMonth)
+            selectedDate = "${dayOfMonth}/${monthOfYear + 1}/$year"
+            deadlineMillis = selectedCalendar.timeInMillis
+        }
+
+    // Time Picker
+    val timeSetListener =
+        TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
+            selectedTime = "$hourOfDay:$minute"
+            val timeInMillis = deadlineMillis?.let { it + (hourOfDay * 3600000) + (minute * 60000) }
+            deadlineMillis = timeInMillis
+        }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -30,19 +57,40 @@ fun AddTaskDialog(
                     onValueChange = { description = it },
                     label = { Text("Deskripsi") }
                 )
-                OutlinedTextField(
-                    value = deadlineText,
-                    onValueChange = { deadlineText = it },
-                    label = { Text("Deadline (epoch millis)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
+
+                // Tanggal Deadline
+                TextButton(onClick = {
+                    val datePicker = DatePickerDialog(
+                        context,
+                        dateSetListener,
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    )
+                    datePicker.show()
+                }) {
+                    Text("Pilih Tanggal Deadline: $selectedDate")
+                }
+
+                // Waktu Deadline
+                TextButton(onClick = {
+                    val timePicker = TimePickerDialog(
+                        context,
+                        timeSetListener,
+                        calendar.get(Calendar.HOUR_OF_DAY),
+                        calendar.get(Calendar.MINUTE),
+                        true
+                    )
+                    timePicker.show()
+                }) {
+                    Text("Pilih Waktu Deadline: $selectedTime")
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
-                val deadline = deadlineText.toLongOrNull()
-                if (!title.isBlank() && !description.isBlank() && deadline != null) {
-                    onSave(title, description, deadline)
+                if (title.isNotBlank() && description.isNotBlank() && deadlineMillis != null) {
+                    onSave(title, description, deadlineMillis!!)
                 }
             }) {
                 Text("Simpan")

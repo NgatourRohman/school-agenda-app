@@ -1,12 +1,14 @@
 package com.arthur.agendasekolah.ui.screens
 
+import android.app.DatePickerDialog
+import android.os.Build
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import java.util.*
 
 @Composable
 fun AddExamDialog(
@@ -14,7 +16,20 @@ fun AddExamDialog(
     onSave: (String, Long) -> Unit
 ) {
     var title by remember { mutableStateOf("") }
-    var dateMillis by remember { mutableStateOf("") }
+    var selectedDate by remember { mutableStateOf("") }
+    var examDateMillis by remember { mutableStateOf<Long?>(null) }
+    val context = LocalContext.current
+
+    val calendar = Calendar.getInstance()
+
+    // Date Picker for Exam Date
+    val dateSetListener =
+        DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
+            val selectedCalendar = Calendar.getInstance()
+            selectedCalendar.set(year, monthOfYear, dayOfMonth)
+            selectedDate = "${dayOfMonth}/${monthOfYear + 1}/$year"
+            examDateMillis = selectedCalendar.timeInMillis
+        }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -26,19 +41,26 @@ fun AddExamDialog(
                     onValueChange = { title = it },
                     label = { Text("Judul Ujian") }
                 )
-                OutlinedTextField(
-                    value = dateMillis,
-                    onValueChange = { dateMillis = it },
-                    label = { Text("Tanggal Ujian (epoch millis)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
+
+                // Tanggal Ujian
+                TextButton(onClick = {
+                    val datePicker = DatePickerDialog(
+                        context,
+                        dateSetListener,
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    )
+                    datePicker.show()
+                }) {
+                    Text("Pilih Tanggal Ujian: $selectedDate")
+                }
             }
         },
         confirmButton = {
             Button(onClick = {
-                val examDate = dateMillis.toLongOrNull()
-                if (title.isNotBlank() && examDate != null) {
-                    onSave(title, examDate)
+                if (title.isNotBlank() && examDateMillis != null) {
+                    onSave(title, examDateMillis!!)
                 }
             }) {
                 Text("Simpan")
