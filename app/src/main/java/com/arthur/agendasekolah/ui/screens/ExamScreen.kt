@@ -36,6 +36,8 @@ fun ExamScreen() {
         examList
     }
 
+    val sortedExamList = filteredExamList.sortedBy { it.dateMillis }
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
@@ -63,7 +65,7 @@ fun ExamScreen() {
                 .padding(16.dp)
         ) {
             LazyColumn {
-                items(filteredExamList, key = { it.id }) { exam ->
+                items(sortedExamList, key = { it.id }) { exam ->
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()

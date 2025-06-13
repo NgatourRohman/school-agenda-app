@@ -7,7 +7,6 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -19,6 +18,14 @@ import com.arthur.agendasekolah.viewmodel.TaskViewModel
 import com.arthur.agendasekolah.viewmodel.TaskViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun TaskScreen() {
@@ -36,6 +43,8 @@ fun TaskScreen() {
     } else {
         taskList
     }
+
+    val sortedTaskList = filteredTaskList.sortedBy { it.deadline }
 
     Scaffold(
         floatingActionButton = {
@@ -64,33 +73,39 @@ fun TaskScreen() {
                 .padding(16.dp)
         ) {
             LazyColumn {
-                items(filteredTaskList, key = { it.id }) { task ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
+                items(sortedTaskList, key = { it.id }) { task ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(tween(durationMillis = 500)) + slideInVertically(initialOffsetY = { it }),
+                        exit = fadeOut(tween(durationMillis = 500)) + slideOutVertically(targetOffsetY = { it })
                     ) {
-                        Row(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(vertical = 4.dp)
                         ) {
-                            Column {
-                                Text("Judul: ${task.title}")
-                                Text("Deskripsi: ${task.description}")
-                                Text("Deadline: ${formatDate(task.deadline)}")
-                            }
-
-                            Row {
-                                if (!task.isCompleted) {
-                                    IconButton(onClick = { viewModel.markTaskAsCompleted(task) }) {
-                                        Icon(Icons.Default.CheckCircle, contentDescription = "Tandai Selesai")
-                                    }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column {
+                                    Text("Judul: ${task.title}")
+                                    Text("Deskripsi: ${task.description}")
+                                    Text("Deadline: ${formatDate(task.deadline)}")
                                 }
 
-                                IconButton(onClick = { viewModel.deleteTask(task) }) {
-                                    Icon(Icons.Default.Delete, contentDescription = "Hapus")
+                                Row {
+                                    if (!task.isCompleted) {
+                                        IconButton(onClick = { viewModel.markTaskAsCompleted(task) }) {
+                                            Icon(Icons.Default.CheckCircle, contentDescription = "Tandai Selesai")
+                                        }
+                                    }
+
+                                    IconButton(onClick = { viewModel.deleteTask(task) }) {
+                                        Icon(Icons.Default.Delete, contentDescription = "Hapus")
+                                    }
                                 }
                             }
                         }
