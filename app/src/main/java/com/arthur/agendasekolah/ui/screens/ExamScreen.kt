@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -13,7 +14,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.filled.FilterList
 import com.arthur.agendasekolah.model.Exam
 import com.arthur.agendasekolah.viewmodel.ExamViewModel
 import com.arthur.agendasekolah.viewmodel.ExamViewModelFactory
@@ -64,6 +64,10 @@ fun ExamScreen() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Text("Daftar Ujian", style = MaterialTheme.typography.h5)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             LazyColumn {
                 items(sortedExamList, key = { it.id }) { exam ->
                     Card(

@@ -7,6 +7,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -19,13 +20,10 @@ import com.arthur.agendasekolah.viewmodel.TaskViewModelFactory
 import java.text.SimpleDateFormat
 import java.util.*
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun TaskScreen() {
@@ -72,12 +70,16 @@ fun TaskScreen() {
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
+            Text("Daftar Tugas", style = MaterialTheme.typography.h5)
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             LazyColumn {
                 items(sortedTaskList, key = { it.id }) { task ->
                     AnimatedVisibility(
                         visible = true,
-                        enter = fadeIn(tween(durationMillis = 500)) + slideInVertically(initialOffsetY = { it }),
-                        exit = fadeOut(tween(durationMillis = 500)) + slideOutVertically(targetOffsetY = { it })
+                        enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                        exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
                     ) {
                         Card(
                             modifier = Modifier
