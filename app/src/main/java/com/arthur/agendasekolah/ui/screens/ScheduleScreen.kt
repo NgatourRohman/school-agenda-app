@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.FilterList
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -16,6 +17,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.arthur.agendasekolah.model.Schedule
 import com.arthur.agendasekolah.viewmodel.ScheduleViewModel
 import com.arthur.agendasekolah.viewmodel.ScheduleViewModelFactory
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 
 @Composable
 fun ScheduleScreen() {
@@ -27,11 +34,37 @@ fun ScheduleScreen() {
     val scheduleList by viewModel.scheduleList.observeAsState(emptyList())
     var showDialog by remember { mutableStateOf(false) }
 
+    // Filter: Show only active schedules (if applicable)
+    var showActiveSchedulesOnly by remember { mutableStateOf(false) }
+
+    // Filtering schedule list
+    val filteredScheduleList = if (showActiveSchedulesOnly) {
+        scheduleList.filter { it.subject.isNotEmpty() }  // Example filter: show active subjects
+    } else {
+        scheduleList
+    }
+
+    // Sorting schedule list by day or time
+    val sortedScheduleList = filteredScheduleList.sortedBy { it.day }  // You can change this to sort by time if needed
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(onClick = { showDialog = true }) {
                 Text("+")
             }
+        },
+        topBar = {
+            TopAppBar(
+                title = { Text("Jadwal Pelajaran") },
+                actions = {
+                    IconButton(onClick = { showActiveSchedulesOnly = !showActiveSchedulesOnly }) {
+                        Icon(
+                            imageVector = Icons.Default.FilterList,
+                            contentDescription = "Filter"
+                        )
+                    }
+                }
+            )
         }
     ) { paddingValues ->
         Column(
@@ -44,29 +77,35 @@ fun ScheduleScreen() {
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyColumn {
-                items(scheduleList, key = { it.id }) { item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
+                items(sortedScheduleList, key = { it.id }) { item ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(tween(durationMillis = 500)) + slideInVertically(initialOffsetY = { it }),
+                        exit = fadeOut(tween(durationMillis = 500)) + slideOutVertically(targetOffsetY = { it })
                     ) {
-                        Row(
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                                .padding(vertical = 4.dp)
                         ) {
-                            Column {
-                                Text("Pelajaran: ${item.subject}")
-                                Text("Jam: ${item.time}")
-                                Text("Hari: ${item.day}")
-                            }
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column {
+                                    Text("Pelajaran: ${item.subject}")
+                                    Text("Jam: ${item.time}")
+                                    Text("Hari: ${item.day}")
+                                }
 
-                            IconButton(onClick = { viewModel.deleteSchedule(item) }) {
-                                Icon(
-                                    imageVector = Icons.Default.Delete,
-                                    contentDescription = "Hapus Jadwal"
-                                )
+                                IconButton(onClick = { viewModel.deleteSchedule(item) }) {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Hapus Jadwal"
+                                    )
+                                }
                             }
                         }
                     }
