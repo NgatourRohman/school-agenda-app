@@ -1,11 +1,10 @@
 package com.arthur.agendasekolah.ui.screens
 
 import android.app.DatePickerDialog
-import android.os.Build
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import java.util.*
@@ -35,11 +34,12 @@ fun AddExamDialog(
         onDismissRequest = onDismiss,
         title = { Text("Tambah Ujian") },
         text = {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Judul Ujian") }
+                    label = { Text("Judul Ujian") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
 
                 // Tanggal Ujian

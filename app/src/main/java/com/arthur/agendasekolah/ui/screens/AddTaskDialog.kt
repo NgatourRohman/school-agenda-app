@@ -2,7 +2,6 @@ package com.arthur.agendasekolah.ui.screens
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.os.Build
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -46,16 +45,18 @@ fun AddTaskDialog(
         onDismissRequest = onDismiss,
         title = { Text("Tambah Tugas") },
         text = {
-            Column {
+            Column(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Judul") }
+                    label = { Text("Judul Tugas") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
-                    label = { Text("Deskripsi") }
+                    label = { Text("Deskripsi") },
+                    modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
                 )
 
                 // Tanggal Deadline
