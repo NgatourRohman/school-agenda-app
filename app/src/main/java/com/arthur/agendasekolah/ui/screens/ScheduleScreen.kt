@@ -8,6 +8,7 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Sort
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
@@ -18,7 +19,6 @@ import com.arthur.agendasekolah.model.Schedule
 import com.arthur.agendasekolah.viewmodel.ScheduleViewModel
 import com.arthur.agendasekolah.viewmodel.ScheduleViewModelFactory
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -34,18 +34,16 @@ fun ScheduleScreen() {
     val scheduleList by viewModel.scheduleList.observeAsState(emptyList())
     var showDialog by remember { mutableStateOf(false) }
 
-    // Filter: Show only active schedules (if applicable)
+    // Filter active schedules
     var showActiveSchedulesOnly by remember { mutableStateOf(false) }
 
-    // Filtering schedule list
     val filteredScheduleList = if (showActiveSchedulesOnly) {
-        scheduleList.filter { it.subject.isNotEmpty() }  // Example filter: show active subjects
+        scheduleList.filter { it.subject.isNotEmpty() }
     } else {
         scheduleList
     }
 
-    // Sorting schedule list by day or time
-    val sortedScheduleList = filteredScheduleList.sortedBy { it.day }  // You can change this to sort by time if needed
+    val sortedScheduleList = filteredScheduleList.sortedBy { it.day }  // Sort by day or time
 
     Scaffold(
         floatingActionButton = {
@@ -57,11 +55,13 @@ fun ScheduleScreen() {
             TopAppBar(
                 title = { Text("Jadwal Pelajaran") },
                 actions = {
+                    // Filter toggle
                     IconButton(onClick = { showActiveSchedulesOnly = !showActiveSchedulesOnly }) {
-                        Icon(
-                            imageVector = Icons.Default.FilterList,
-                            contentDescription = "Filter"
-                        )
+                        Icon(imageVector = Icons.Default.FilterList, contentDescription = "Filter")
+                    }
+                    // Sorting toggle
+                    IconButton(onClick = { /* Sort logic */ }) {
+                        Icon(imageVector = Icons.Default.Sort, contentDescription = "Sort")
                     }
                 }
             )
@@ -80,8 +80,8 @@ fun ScheduleScreen() {
                 items(sortedScheduleList, key = { it.id }) { item ->
                     AnimatedVisibility(
                         visible = true,
-                        enter = fadeIn(tween(durationMillis = 500)) + slideInVertically(initialOffsetY = { it }),
-                        exit = fadeOut(tween(durationMillis = 500)) + slideOutVertically(targetOffsetY = { it })
+                        enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                        exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
                     ) {
                         Card(
                             modifier = Modifier
@@ -101,10 +101,7 @@ fun ScheduleScreen() {
                                 }
 
                                 IconButton(onClick = { viewModel.deleteSchedule(item) }) {
-                                    Icon(
-                                        imageVector = Icons.Default.Delete,
-                                        contentDescription = "Hapus Jadwal"
-                                    )
+                                    Icon(imageVector = Icons.Default.Delete, contentDescription = "Hapus Jadwal")
                                 }
                             }
                         }
